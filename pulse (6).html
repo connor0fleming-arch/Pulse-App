@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pulse · Business Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#F5F3EF;--surface:#FFFFFF;--text:#111827;--text2:#374151;--muted:#9CA3AF;
+  --border:#E5E1D6;--accent:#1A56DB;--accent-light:#EBF2FF;
+  --high:#DC2626;--med:#D97706;--low:#059669;
+  --high-bg:#FEF2F2;--med-bg:#FFFBEB;--low-bg:#F0FDF4;
+  --legal:#7C3AED;--legal-bg:#F5F3FF;
+  --prod:#0891B2;--prod-bg:#ECFEFF;
+  --upcoming:#D97706;--upcoming-bg:#FFFBEB;
+  --r:12px;--sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 16px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
+  --nav:60px;--sb:262px;
+}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;}
+a{color:inherit;text-decoration:none;}
+button{cursor:pointer;border:none;background:none;font-family:inherit;}
+input,textarea,select{font-family:inherit;}
+.hidden{display:none!important;}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;transition:all .15s;cursor:pointer;border:none;white-space:nowrap;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:#1544b8;transform:translateY(-1px);box-shadow:0 4px 14px rgba(26,86,219,.3);}
+.btn-secondary{background:var(--surface);color:var(--text);border:1.5px solid var(--border);}
+.btn-secondary:hover{background:var(--bg);}
+.btn-ghost{background:none;color:var(--muted);padding:6px 8px;border-radius:6px;font-size:13px;}
+.btn-ghost:hover{background:var(--bg);color:var(--text2);}
+.btn-lg{padding:13px 26px;font-size:15px;border-radius:10px;}
+.btn-sm{padding:7px 14px;font-size:12px;}
+.w-full{width:100%;}
+
+/* ── Forms ── */
+.field-group{display:flex;flex-direction:column;gap:5px;}
+.field-label{font-size:13px;font-weight:600;color:var(--text2);}
+.field-input{padding:10px 13px;border-radius:8px;border:1.5px solid var(--border);font-size:14px;color:var(--text);background:var(--surface);outline:none;transition:border-color .15s;}
+.field-input:focus{border-color:var(--accent);}
+.field-textarea{resize:vertical;min-height:88px;}
+
+/* ── Badges ── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;}
+.badge-blue{background:var(--accent-light);color:var(--accent);}
+.badge-high{background:var(--high-bg);color:var(--high);}
+.badge-med{background:var(--med-bg);color:var(--med);}
+.badge-low{background:var(--low-bg);color:var(--low);}
+.badge-legal{background:var(--legal-bg);color:var(--legal);}
+.badge-prod{background:var(--prod-bg);color:var(--prod);}
+.badge-upcoming{background:var(--upcoming-bg);color:var(--upcoming);}
+
+/* ── Toast ── */
+#toasts{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;}
+.toast{background:var(--text);color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:var(--sh-md);animation:slideUp .3s ease;max-width:320px;}
+.toast.ok{background:#059669;}.toast.err{background:#DC2626;}
+
+/* ── Animations ── */
+@keyframes slideUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes popIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+@keyframes shimmer{from{background-position:200% 0;}to{background-position:-200% 0;}}
+@keyframes cardIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── Logo ── */
+.logo{display:flex;align-items:center;gap:8px;font-family:'Playfair Display',serif;font-size:22px;font-weight:700;letter-spacing:-.3px;}
+.logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulseDot 2s infinite;}
+@keyframes pulseDot{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(.75);opacity:.6;}}
+
+/* ════════ LANDING ════════ */
+#landing{min-height:100vh;}
+.lnav{position:sticky;top:0;z-index:100;background:rgba(245,243,239,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 48px;height:var(--nav);display:flex;align-items:center;justify-content:space-between;}
+.lnav-actions{display:flex;align-items:center;gap:10px;}
+.hero{padding:96px 48px 80px;max-width:1160px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--accent-light);color:var(--accent);padding:5px 12px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:20px;}
+.hero-title{font-family:'Playfair Display',serif;font-size:50px;font-weight:700;line-height:1.1;margin-bottom:18px;}
+.hero-title em{font-style:italic;color:var(--accent);}
+.hero-sub{font-size:17px;color:var(--text2);margin-bottom:32px;line-height:1.65;}
+.hero-btns{display:flex;gap:12px;}
+.hero-mockup{background:var(--surface);border-radius:16px;box-shadow:var(--sh-md);border:1px solid var(--border);overflow:hidden;}
+.mock-hdr{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.mock-hdr-title{font-weight:600;font-size:14px;}
+.mock-hdr-badge{background:var(--high-bg);color:var(--high);padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;text-transform:uppercase;}
+.mock-item{padding:14px 20px;border-bottom:1px solid var(--border);animation:cardIn .5s ease both;}
+.mock-item:last-child{border-bottom:none;}
+.mock-item:nth-child(2){animation-delay:.08s;}.mock-item:nth-child(3){animation-delay:.16s;}.mock-item:nth-child(4){animation-delay:.24s;}
+.mock-item-title{font-size:13px;font-weight:600;margin-bottom:5px;}
+.mock-tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;}
+.mock-meta{font-size:11px;color:var(--muted);margin-top:5px;}
+.features{max-width:1160px;margin:0 auto;padding:0 48px 96px;}
+.features-hdr{text-align:center;margin-bottom:52px;}
+.features-hdr h2{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;margin-bottom:10px;}
+.features-hdr p{font-size:16px;color:var(--text2);}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+.feat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:26px;transition:box-shadow .2s,transform .2s;}
+.feat-card:hover{box-shadow:var(--sh-md);transform:translateY(-2px);}
+.feat-icon{font-size:28px;margin-bottom:12px;}
+.feat-card h3{font-size:15px;font-weight:700;margin-bottom:7px;}
+.feat-card p{font-size:13.5px;color:var(--text2);line-height:1.65;}
+.cta-strip{background:var(--text);color:#fff;padding:72px 48px;text-align:center;}
+.cta-strip h2{font-family:'Playfair Display',serif;font-size:36px;margin-bottom:10px;}
+.cta-strip p{font-size:16px;opacity:.65;margin-bottom:28px;}
+
+/* ════════ AUTH MODAL ════════ */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:flex;align-items:center;justify-content:center;animation:fadeIn .2s ease;}
+.modal{background:var(--surface);border-radius:18px;padding:40px;width:440px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.14);animation:popIn .25s ease;}
+.modal-logo{margin-bottom:22px;}
+.auth-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:26px;}
+.atab{padding:8px 18px;font-size:14px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;transition:all .15s;}
+.atab.on{color:var(--accent);border-bottom-color:var(--accent);}
+.auth-form{display:flex;flex-direction:column;gap:14px;}
+.auth-note{font-size:12px;color:var(--muted);text-align:center;margin-top:14px;}
+
+/* ════════ ONBOARDING ════════ */
+#onboarding{min-height:100vh;display:flex;flex-direction:column;}
+.onav{height:var(--nav);padding:0 48px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--surface);}
+.onboard-body{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 24px;}
+.onboard-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:48px;width:580px;max-width:100%;box-shadow:var(--sh-md);}
+.pips{display:flex;gap:6px;margin-bottom:30px;}
+.pip{height:4px;border-radius:2px;flex:1;background:var(--border);transition:background .3s;}
+.pip.on{background:var(--accent);}
+.onboard-card h2{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:6px;}
+.onboard-card .sub{color:var(--text2);font-size:14px;margin-bottom:26px;}
+.onboard-actions{display:flex;justify-content:space-between;align-items:center;margin-top:30px;}
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.cat-btn{display:flex;align-items:center;gap:9px;padding:11px 13px;border-radius:9px;border:1.5px solid var(--border);cursor:pointer;transition:all .15s;background:var(--surface);font-family:inherit;font-size:13px;font-weight:500;}
+.cat-btn.on{border-color:var(--accent);background:var(--accent-light);color:var(--accent);}
+.cat-icon{font-size:17px;}
+
+/* ════════ APP SHELL ════════ */
+#app{min-height:100vh;display:flex;flex-direction:column;}
+.anav{height:var(--nav);padding:0 28px;display:flex;align-items:center;justify-content:space-between;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+.anav-right{display:flex;align-items:center;gap:10px;}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;position:relative;user-select:none;}
+.user-menu{position:absolute;top:calc(100% + 8px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--sh-md);min-width:180px;overflow:hidden;z-index:200;}
+.umenu-item{padding:10px 15px;font-size:13px;cursor:pointer;transition:background .1s;display:flex;align-items:center;gap:8px;}
+.umenu-item:hover{background:var(--bg);}
+.umenu-item.red{color:#DC2626;}
+.umenu-divider{height:1px;background:var(--border);}
+.app-body{flex:1;display:flex;}
+
+/* ── Sidebar ── */
+.sidebar{width:var(--sb);min-height:calc(100vh - var(--nav));background:var(--surface);border-right:1px solid var(--border);padding:20px 12px;flex-shrink:0;position:sticky;top:var(--nav);align-self:flex-start;height:calc(100vh - var(--nav));overflow-y:auto;}
+.sb-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:0 9px;margin-bottom:6px;}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;color:var(--text2);margin-bottom:1px;justify-content:space-between;}
+.sb-item:hover{background:var(--bg);color:var(--text);}
+.sb-item.on{background:var(--accent-light);color:var(--accent);font-weight:600;}
+.sb-item-left{display:flex;align-items:center;gap:9px;}
+.sb-badge{background:var(--high);color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:1px 6px;min-width:18px;text-align:center;}
+.sb-divider{height:1px;background:var(--border);margin:12px 0;}
+.fchip{display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:7px;font-size:12px;cursor:pointer;margin-bottom:1px;transition:all .15s;color:var(--text2);}
+.fchip:hover{background:var(--bg);}
+.fchip.on{background:var(--accent-light);color:var(--accent);font-weight:600;}
+.fchip-left{display:flex;align-items:center;gap:6px;}
+.fchip-count{background:var(--border);color:var(--muted);padding:1px 6px;border-radius:999px;font-size:10px;font-weight:600;}
+.fchip.on .fchip-count{background:var(--accent);color:#fff;}
+
+/* ── Main content area ── */
+.main{flex:1;padding:32px 40px;max-width:900px;}
+.dash-hdr{margin-bottom:24px;}
+.dash-hdr h1{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;margin-bottom:3px;}
+.dash-hdr p{color:var(--text2);font-size:14px;}
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+.imp-tabs{display:flex;gap:3px;background:var(--border);border-radius:8px;padding:3px;}
+.itab{padding:5px 13px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--muted);}
+.itab.on{background:var(--surface);color:var(--text);box-shadow:var(--sh);}
+
+/* ── Universal News/Legal/Product Card ── */
+.feed{display:flex;flex-direction:column;gap:14px;}
+.ncard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);border-left:4px solid var(--border);box-shadow:var(--sh);transition:box-shadow .2s,transform .2s;overflow:hidden;}
+.ncard:hover{box-shadow:var(--sh-md);transform:translateY(-1px);}
+.ncard.h{border-left-color:var(--high);}
+.ncard.m{border-left-color:var(--med);}
+.ncard.l{border-left-color:var(--low);}
+.ncard.legal-card{border-left-color:var(--legal);}
+.ncard.prod-card{border-left-color:var(--prod);}
+.ncard.upcoming-card{border-left-color:var(--upcoming);}
+.ncard.dismissed{opacity:.4;pointer-events:none;}
+.ncard.bookmarked .bm-btn{color:var(--accent);}
+.ncard-body{padding:18px 20px;}
+.ncard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:9px;}
+.ncard-badges{display:flex;gap:6px;flex-wrap:wrap;flex:1;}
+.ncard-meta{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.ncard-date{font-size:11px;color:var(--muted);}
+.ncard-actions-top{display:flex;align-items:center;gap:2px;}
+.ncard-title{font-size:15px;font-weight:700;line-height:1.4;margin-bottom:7px;}
+.ncard-summary{font-size:13.5px;color:var(--text2);line-height:1.65;margin-bottom:11px;}
+.ncard-why{background:var(--bg);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--text2);display:flex;gap:8px;margin-bottom:11px;}
+.ncard-why-icon{flex-shrink:0;font-size:14px;padding-top:1px;}
+.ncard-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.ncard-source{font-size:12px;color:var(--muted);}
+.ncard-footer-actions{display:flex;align-items:center;gap:6px;}
+
+/* ── Countdown badge ── */
+.countdown{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;}
+.countdown.urgent{background:#FEF2F2;color:#DC2626;}
+.countdown.soon{background:#FFFBEB;color:#D97706;}
+.countdown.later{background:#F0FDF4;color:#059669;}
+
+/* ── Bookmarks view ── */
+.bm-empty{text-align:center;padding:60px 24px;}
+
+/* ── Skeleton ── */
+.skel-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px;}
+.skel{background:linear-gradient(90deg,var(--border) 25%,#ece8de 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:5px;}
+
+/* ── Empty ── */
+.empty{text-align:center;padding:70px 24px;}
+.empty-icon{font-size:46px;margin-bottom:14px;}
+.empty h3{font-size:19px;font-weight:700;margin-bottom:8px;}
+.empty p{font-size:14px;color:var(--text2);max-width:340px;margin:0 auto 22px;line-height:1.65;}
+
+/* ── Settings ── */
+.settings-main{flex:1;padding:32px 40px;max-width:700px;}
+.s-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:26px;margin-bottom:18px;}
+.s-section-title{font-size:16px;font-weight:700;margin-bottom:3px;}
+.s-section-desc{font-size:13px;color:var(--muted);margin-bottom:22px;}
+.s-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
+.s-row:last-of-type{border-bottom:none;padding-bottom:0;}
+.s-row-lbl{font-size:14px;font-weight:500;}
+.s-row-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.toggle{width:44px;height:24px;border-radius:12px;background:var(--border);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
+.toggle.on{background:var(--accent);}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.toggle.on::after{transform:translateX(20px);}
+
+/* ── Icon buttons ── */
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;font-size:14px;cursor:pointer;transition:all .15s;background:none;border:none;color:var(--muted);}
+.icon-btn:hover{background:var(--bg);color:var(--text);}
+.icon-btn.active{color:var(--accent);}
+
+@media(max-width:768px){
+  .hero{grid-template-columns:1fr;gap:40px;padding:60px 22px;}
+  .hero-mockup{display:none;}
+  .features{padding:0 22px 60px;}
+  .feat-grid{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+  .main,.settings-main{padding:20px;}
+  .lnav{padding:0 22px;}
+}
+</style>
+</head>
+<body>
+<div id="toasts"></div>
+
+<!-- ══════════ LANDING ══════════ -->
+<div id="landing">
+  <nav class="lnav">
+    <div class="logo"><div class="logo-dot"></div>Pulse</div>
+    <div class="lnav-actions">
+      <button class="btn btn-secondary btn-sm" onclick="openAuth('login')">Log in</button>
+      <button class="btn btn-primary btn-sm" onclick="openAuth('signup')">Get started free</button>
+    </div>
+  </nav>
+  <section class="hero">
+    <div>
+      <div class="hero-eyebrow">🗞️ Business Intelligence</div>
+      <h1 class="hero-title">News that <em>actually</em> affects<br>your business</h1>
+      <p class="hero-sub">Pulse monitors thousands of sources and uses AI to surface news, legal updates, industry products, and upcoming deadlines that matter to your specific business — then delivers it every morning.</p>
+      <div class="hero-btns">
+        <button class="btn btn-primary btn-lg" onclick="openAuth('signup')">Start for free →</button>
+        <button class="btn btn-secondary btn-lg" onclick="openAuth('login')">Log in</button>
+      </div>
+    </div>
+    <div class="hero-mockup">
+      <div class="mock-hdr"><span class="mock-hdr-title">Your Business Briefing</span><span class="mock-hdr-badge">3 High Impact</span></div>
+      <div class="mock-item">
+        <div class="mock-item-title">IRS expands tip reporting requirements for restaurants</div>
+        <span class="mock-tag" style="background:var(--high-bg);color:var(--high)">High Impact</span>
+        <div class="mock-meta">📋 Tax & Labor Law · 2h ago</div>
+      </div>
+      <div class="mock-item">
+        <div class="mock-item-title">Class action filed against Phoenix demo contractors over OSHA violations</div>
+        <span class="mock-tag" style="background:var(--legal-bg);color:var(--legal)">⚖️ Legal</span>
+        <div class="mock-meta">⚖️ Lawsuit · 4h ago</div>
+      </div>
+      <div class="mock-item">
+        <div class="mock-item-title">OSHA Silica Rule compliance deadline — 47 days remaining</div>
+        <span class="mock-tag" style="background:var(--upcoming-bg);color:var(--upcoming)">📅 Upcoming</span>
+        <div class="mock-meta">📅 Regulatory Deadline · Jun 15</div>
+      </div>
+    </div>
+  </section>
+  <section class="features">
+    <div class="features-hdr"><h2>Everything you need to stay ahead</h2><p>Built for business owners who don't have time to read everything.</p></div>
+    <div class="feat-grid">
+      <div class="feat-card"><div class="feat-icon">🎯</div><h3>Hyper-relevant news</h3><p>AI filters thousands of sources to surface only news impacting your specific industry, location, and business type.</p></div>
+      <div class="feat-card"><div class="feat-icon">⚖️</div><h3>Legal intelligence</h3><p>Track lawsuits, class actions, compliance deadlines, and legal developments that could affect your business.</p></div>
+      <div class="feat-card"><div class="feat-icon">🛒</div><h3>Industry products</h3><p>Discover new equipment, tools, software, and supply updates relevant to your industry before competitors do.</p></div>
+      <div class="feat-card"><div class="feat-icon">📅</div><h3>Upcoming deadlines</h3><p>Never miss a regulatory filing, tax deadline, or industry event — with a 90-day forward-looking calendar and countdown.</p></div>
+      <div class="feat-card"><div class="feat-icon">🔖</div><h3>Save & organize</h3><p>Bookmark important items, dismiss noise, and export or share anything with your team in one click.</p></div>
+      <div class="feat-card"><div class="feat-icon">📧</div><h3>Daily digest</h3><p>Wake up to a curated morning briefing with everything that matters, ranked by business impact.</p></div>
+    </div>
+  </section>
+  <div class="cta-strip">
+    <h2>Start in under 2 minutes.</h2>
+    <p>No credit card required. Set up your profile and get your first briefing today.</p>
+    <button class="btn btn-primary btn-lg" style="background:#fff;color:#111827" onclick="openAuth('signup')">Get started free →</button>
+  </div>
+</div>
+
+<!-- ══════════ AUTH ══════════ -->
+<div id="auth-overlay" class="overlay hidden">
+  <div class="modal">
+    <div class="modal-logo"><div class="logo"><div class="logo-dot"></div>Pulse</div></div>
+    <div class="auth-tabs">
+      <div class="atab on" id="tab-signup" onclick="switchAuthTab('signup')">Create account</div>
+      <div class="atab" id="tab-login" onclick="switchAuthTab('login')">Log in</div>
+    </div>
+    <div id="form-signup">
+      <div class="auth-form">
+        <div class="field-group"><label class="field-label">Full name</label><input class="field-input" id="su-name" type="text" placeholder="Jane Smith"></div>
+        <div class="field-group"><label class="field-label">Email</label><input class="field-input" id="su-email" type="email" placeholder="jane@company.com"></div>
+        <div class="field-group"><label class="field-label">Password</label><input class="field-input" id="su-pass" type="password" placeholder="6+ characters"></div>
+        <button class="btn btn-primary w-full" style="margin-top:4px" onclick="doSignup()">Create account →</button>
+      </div>
+    </div>
+    <div id="form-login" class="hidden">
+      <div class="auth-form">
+        <div class="field-group"><label class="field-label">Email</label><input class="field-input" id="li-email" type="email" placeholder="jane@company.com"></div>
+        <div class="field-group"><label class="field-label">Password</label><input class="field-input" id="li-pass" type="password" placeholder="Your password"></div>
+        <button class="btn btn-primary w-full" style="margin-top:4px" onclick="doLogin()">Log in →</button>
+      </div>
+    </div>
+    <p class="auth-note">By continuing you agree to our Terms of Service &amp; Privacy Policy.</p>
+  </div>
+</div>
+
+<!-- ══════════ ONBOARDING ══════════ -->
+<div id="onboarding" class="hidden">
+  <nav class="onav"><div class="logo"><div class="logo-dot"></div>Pulse</div><span style="font-size:13px;color:var(--muted)" id="ob-step-lbl">Step 1 of 3</span></nav>
+  <div class="onboard-body">
+    <div class="onboard-card">
+      <div class="pips"><div class="pip on" id="pip-1"></div><div class="pip" id="pip-2"></div><div class="pip" id="pip-3"></div></div>
+      <!-- Step 1 -->
+      <div id="ob-s1">
+        <h2>Tell us about your business</h2>
+        <p class="sub">We'll use this to personalize your entire intelligence feed.</p>
+        <div class="auth-form" style="gap:13px">
+          <div class="field-group"><label class="field-label">Business name</label><input class="field-input" id="ob-name" type="text" placeholder="e.g. Rosie's Diner"></div>
+          <div class="field-group">
+            <label class="field-label">Industry</label>
+            <select class="field-input" id="ob-industry">
+              <option value="">Select your industry...</option>
+              <option>Restaurant / Food Service</option><option>Retail</option><option>Healthcare / Medical</option>
+              <option>Construction / Contracting</option><option>Demolition / Site Clearing</option><option>Real Estate</option>
+              <option>Technology / SaaS</option><option>Professional Services</option><option>Manufacturing</option>
+              <option>Hospitality / Hotel</option><option>Transportation / Logistics</option>
+              <option>Finance / Insurance</option><option>Education</option><option>Other</option>
+            </select>
+          </div>
+          <div class="field-group"><label class="field-label">Describe what your business does <span style="color:var(--muted);font-weight:400">(be specific)</span></label><textarea class="field-input field-textarea" id="ob-desc" placeholder="e.g. We operate a full-service restaurant with 14 servers and 6 kitchen staff..."></textarea></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px">
+            <div class="field-group"><label class="field-label">City</label><input class="field-input" id="ob-city" type="text" placeholder="e.g. Phoenix"></div>
+            <div class="field-group"><label class="field-label">State</label>
+              <select class="field-input" id="ob-state"><option value="">Select state...</option>
+                <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-group"><label class="field-label">Business size</label>
+            <select class="field-input" id="ob-size"><option value="">Select...</option>
+              <option>Solo / 1 person</option><option>2–10 employees</option><option>11–50 employees</option><option>51–200 employees</option><option>200+ employees</option>
+            </select>
+          </div>
+        </div>
+        <div class="onboard-actions"><span></span><button class="btn btn-primary" onclick="obNext(1)">Continue →</button></div>
+      </div>
+      <!-- Step 2 -->
+      <div id="ob-s2" class="hidden">
+        <h2>What should we track?</h2>
+        <p class="sub">Select the news categories most relevant to your business.</p>
+        <div class="cat-grid" id="ob-cats">
+          <button class="cat-btn on" data-cat="Tax &amp; Labor Law" onclick="toggleCat(this)"><span class="cat-icon">📋</span> Tax &amp; Labor Law</button>
+          <button class="cat-btn on" data-cat="Regulations &amp; Compliance" onclick="toggleCat(this)"><span class="cat-icon">⚖️</span> Regulations &amp; Compliance</button>
+          <button class="cat-btn on" data-cat="Economic Trends" onclick="toggleCat(this)"><span class="cat-icon">📊</span> Economic Trends</button>
+          <button class="cat-btn on" data-cat="Industry News" onclick="toggleCat(this)"><span class="cat-icon">🏢</span> Industry News</button>
+          <button class="cat-btn on" data-cat="Local &amp; State News" onclick="toggleCat(this)"><span class="cat-icon">🏙️</span> Local &amp; State News</button>
+          <button class="cat-btn on" data-cat="Federal Policy" onclick="toggleCat(this)"><span class="cat-icon">🏛️</span> Federal Policy</button>
+        </div>
+        <div class="onboard-actions"><button class="btn btn-secondary" onclick="obGo(1)">← Back</button><button class="btn btn-primary" onclick="obNext(2)">Continue →</button></div>
+      </div>
+      <!-- Step 3 -->
+      <div id="ob-s3" class="hidden">
+        <h2>Set up your daily digest</h2>
+        <p class="sub">Get a curated morning briefing across all your intelligence sections.</p>
+        <div class="auth-form" style="gap:15px">
+          <div class="field-group"><label class="field-label">Digest email address</label><input class="field-input" id="ob-email" type="email" placeholder="you@yourbusiness.com"></div>
+          <div class="field-group"><label class="field-label">Delivery time</label>
+            <select class="field-input" id="ob-time"><option>7:00 AM</option><option selected>8:00 AM</option><option>9:00 AM</option><option>Noon</option></select>
+          </div>
+          <div style="background:var(--bg);border-radius:10px;padding:15px;font-size:13px;color:var(--text2);line-height:1.65">
+            📧 <strong>What to expect:</strong> Each morning you'll receive news, legal updates, new industry products, and upcoming deadlines — all in one briefing, ranked by impact.
+          </div>
+        </div>
+        <div class="onboard-actions"><button class="btn btn-secondary" onclick="obGo(2)">← Back</button><button class="btn btn-primary" onclick="obFinish()">Go to my dashboard →</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ APP SHELL ══════════ -->
+<div id="app" class="hidden">
+  <nav class="anav">
+    <div class="logo"><div class="logo-dot"></div>Pulse</div>
+    <div class="anav-right">
+      <button class="btn btn-secondary btn-sm" id="refresh-btn" onclick="doRefreshAll()">↻ Refresh all</button>
+      <div class="avatar" id="avatar" onclick="toggleMenu()">?
+        <div class="user-menu hidden" id="umenu">
+          <div class="umenu-item" onclick="gotoView('dashboard')">📊 Dashboard</div>
+          <div class="umenu-item" onclick="gotoView('legal')">⚖️ Legal</div>
+          <div class="umenu-item" onclick="gotoView('products')">🛒 Industry Products</div>
+          <div class="umenu-item" onclick="gotoView('upcoming')">📅 Upcoming</div>
+          <div class="umenu-item" onclick="gotoView('bookmarks')">🔖 Saved</div>
+          <div class="umenu-divider"></div>
+          <div class="umenu-item" onclick="gotoView('settings')">⚙️ Settings</div>
+          <div class="umenu-divider"></div>
+          <div class="umenu-item red" onclick="doLogout()">Sign out</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="app-body">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sb-label">Sections</div>
+      <div class="sb-item on" id="sb-dashboard" onclick="gotoView('dashboard')"><span class="sb-item-left">📊 Dashboard</span><span class="sb-badge hidden" id="sb-badge-dashboard"></span></div>
+      <div class="sb-item" id="sb-legal" onclick="gotoView('legal')"><span class="sb-item-left">⚖️ Legal</span><span class="sb-badge hidden" id="sb-badge-legal"></span></div>
+      <div class="sb-item" id="sb-products" onclick="gotoView('products')"><span class="sb-item-left">🛒 Industry Products</span></div>
+      <div class="sb-item" id="sb-upcoming" onclick="gotoView('upcoming')"><span class="sb-item-left">📅 Upcoming</span><span class="sb-badge hidden" id="sb-badge-upcoming"></span></div>
+      <div class="sb-item" id="sb-bookmarks" onclick="gotoView('bookmarks')"><span class="sb-item-left">🔖 Saved</span><span class="sb-badge hidden" id="sb-badge-bookmarks" style="background:var(--accent)"></span></div>
+      <div class="sb-divider"></div>
+      <div class="sb-item" id="sb-settings" onclick="gotoView('settings')"><span class="sb-item-left">⚙️ Settings</span></div>
+      <div class="sb-divider"></div>
+      <div class="sb-label">Filter by category</div>
+      <div id="sb-filters"></div>
+    </aside>
+
+    <!-- ── Dashboard ── -->
+    <div id="vw-dashboard" style="flex:1;min-width:0">
+      <div class="main">
+        <div class="dash-hdr"><h1 id="greeting">Your Business Briefing</h1><p id="greeting-sub">Personalized news for your business</p></div>
+        <div class="toolbar">
+          <div class="imp-tabs">
+            <div class="itab on" onclick="setImp('all',this)">All</div>
+            <div class="itab" onclick="setImp('high',this)">🔴 High</div>
+            <div class="itab" onclick="setImp('medium',this)">🟡 Medium</div>
+            <div class="itab" onclick="setImp('low',this)">🟢 Low</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span id="count-lbl" style="font-size:12px;color:var(--muted)"></span>
+            <button class="btn btn-secondary btn-sm" onclick="exportSection('dashboard')">⬇ Export</button>
+          </div>
+        </div>
+        <div class="feed" id="news-feed"></div>
+      </div>
+    </div>
+
+    <!-- ── Legal ── -->
+    <div id="vw-legal" class="hidden" style="flex:1;min-width:0">
+      <div class="main">
+        <div class="dash-hdr">
+          <h1 style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700">⚖️ Legal Intelligence</h1>
+          <p style="color:var(--text2);font-size:14px">Lawsuits, class actions, legal deadlines &amp; compliance filings relevant to your business</p>
+        </div>
+        <div class="toolbar">
+          <div class="imp-tabs">
+            <div class="litab on" onclick="setLegalImp('all',this)">All</div>
+            <div class="litab" onclick="setLegalImp('high',this)">🔴 High</div>
+            <div class="litab" onclick="setLegalImp('medium',this)">🟡 Medium</div>
+            <div class="litab" onclick="setLegalImp('low',this)">🟢 Low</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span id="legal-count-lbl" style="font-size:12px;color:var(--muted)"></span>
+            <button class="btn btn-secondary btn-sm" onclick="exportSection('legal')">⬇ Export</button>
+          </div>
+        </div>
+        <div class="feed" id="legal-feed"></div>
+      </div>
+    </div>
+
+    <!-- ── Industry Products ── -->
+    <div id="vw-products" class="hidden" style="flex:1;min-width:0">
+      <div class="main">
+        <div class="dash-hdr">
+          <h1 style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700">🛒 Industry Products</h1>
+          <p style="color:var(--text2);font-size:14px">New product launches, equipment, tools, software &amp; supply updates for your industry</p>
+        </div>
+        <div class="toolbar">
+          <div class="imp-tabs">
+            <div class="pitab on" onclick="setProdImp('all',this)">All</div>
+            <div class="pitab" onclick="setProdImp('high',this)">🔴 High Value</div>
+            <div class="pitab" onclick="setProdImp('medium',this)">🟡 Medium</div>
+            <div class="pitab" onclick="setProdImp('low',this)">🟢 FYI</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span id="prod-count-lbl" style="font-size:12px;color:var(--muted)"></span>
+            <button class="btn btn-secondary btn-sm" onclick="exportSection('products')">⬇ Export</button>
+          </div>
+        </div>
+        <div class="feed" id="prod-feed"></div>
+      </div>
+    </div>
+
+    <!-- ── Upcoming ── -->
+    <div id="vw-upcoming" class="hidden" style="flex:1;min-width:0">
+      <div class="main">
+        <div class="dash-hdr">
+          <h1 style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700">📅 Upcoming</h1>
+          <p style="color:var(--text2);font-size:14px">Regulatory deadlines, laws taking effect, industry events &amp; market forecasts — next 90 days</p>
+        </div>
+        <div class="toolbar">
+          <div class="imp-tabs">
+            <div class="utab on" onclick="setUpcomingFilter('all',this)">All</div>
+            <div class="utab" onclick="setUpcomingFilter('deadline',this)">⏰ Deadlines</div>
+            <div class="utab" onclick="setUpcomingFilter('event',this)">🎯 Events</div>
+            <div class="utab" onclick="setUpcomingFilter('law',this)">📜 Laws</div>
+            <div class="utab" onclick="setUpcomingFilter('forecast',this)">📈 Forecasts</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span id="upcoming-count-lbl" style="font-size:12px;color:var(--muted)"></span>
+            <button class="btn btn-secondary btn-sm" onclick="exportSection('upcoming')">⬇ Export</button>
+          </div>
+        </div>
+        <div class="feed" id="upcoming-feed"></div>
+      </div>
+    </div>
+
+    <!-- ── Bookmarks ── -->
+    <div id="vw-bookmarks" class="hidden" style="flex:1;min-width:0">
+      <div class="main">
+        <div class="dash-hdr">
+          <h1 style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700">🔖 Saved Items</h1>
+          <p style="color:var(--text2);font-size:14px">Items you've bookmarked across all sections</p>
+        </div>
+        <div class="toolbar">
+          <span id="bm-count-lbl" style="font-size:12px;color:var(--muted)"></span>
+          <button class="btn btn-secondary btn-sm" onclick="exportSection('bookmarks')">⬇ Export</button>
+        </div>
+        <div class="feed" id="bm-feed"></div>
+      </div>
+    </div>
+
+    <!-- ── Settings ── -->
+    <div id="vw-settings" class="hidden" style="flex:1;min-width:0">
+      <div class="settings-main">
+        <div class="dash-hdr"><h1 style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700">Settings</h1><p style="color:var(--text2);font-size:14px">Manage your business profile and preferences</p></div>
+        <div class="s-section">
+          <div class="s-section-title">Business Profile</div>
+          <div class="s-section-desc">Changes trigger a full refresh of all intelligence sections.</div>
+          <div class="auth-form" style="gap:13px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px">
+              <div class="field-group"><label class="field-label">Business name</label><input class="field-input" id="s-name" type="text"></div>
+              <div class="field-group"><label class="field-label">Industry</label><input class="field-input" id="s-industry" type="text"></div>
+            </div>
+            <div class="field-group"><label class="field-label">Business description</label><textarea class="field-input field-textarea" id="s-desc"></textarea></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px">
+              <div class="field-group"><label class="field-label">City</label><input class="field-input" id="s-city" type="text" placeholder="e.g. Phoenix"></div>
+              <div class="field-group"><label class="field-label">State</label>
+                <select class="field-input" id="s-state"><option value="">Select state...</option>
+                  <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option>
+                </select>
+              </div>
+              <div class="field-group"><label class="field-label">Business size</label><input class="field-input" id="s-size" type="text"></div>
+            </div>
+            <div style="display:flex;justify-content:flex-start"><button class="btn btn-primary" onclick="saveProfile()">Save profile</button></div>
+          </div>
+        </div>
+        <div class="s-section">
+          <div class="s-section-title">News Categories</div>
+          <div class="s-section-desc">Applies to the Dashboard section.</div>
+          <div class="cat-grid" id="s-cats"></div>
+          <button class="btn btn-primary" style="margin-top:16px" onclick="saveCategories()">Save categories</button>
+        </div>
+        <div class="s-section">
+          <div class="s-section-title">Email Notifications</div>
+          <div class="s-section-desc">Configure your daily digest delivery.</div>
+          <div class="s-row"><div><div class="s-row-lbl">Daily digest</div><div class="s-row-sub">Morning briefing across all sections</div></div><div class="toggle on" id="tog-digest" onclick="toggleDigest(this)"></div></div>
+          <div class="s-row"><div><div class="s-row-lbl">Digest email</div></div><input class="field-input" id="s-email" type="email" style="width:220px;padding:8px 11px;font-size:13px"></div>
+          <div class="s-row"><div><div class="s-row-lbl">Delivery time</div></div>
+            <select class="field-input" id="s-time" style="width:130px;padding:8px 11px;font-size:13px"><option>7:00 AM</option><option>8:00 AM</option><option>9:00 AM</option><option>Noon</option></select>
+          </div>
+          <button class="btn btn-primary" style="margin-top:14px" onclick="saveNotifs()">Save notification settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
+const S = {
+  user: null, profile: null,
+  news: [], legal: [], products: [], upcoming: [],
+  loading: false, loadingLegal: false, loadingProducts: false, loadingUpcoming: false,
+  catFilter: 'all', impFilter: 'all',
+  legalImp: 'all', prodImp: 'all', upcomingFilter: 'all',
+  bookmarks: {}, // id → item
+  dismissed: {}, // id → true
+  obDraft: {},
+  selectedCats: ['Tax & Labor Law','Regulations & Compliance','Economic Trends','Industry News','Local & State News','Federal Policy'],
+};
+
+const ALL_CATS = ['Tax & Labor Law','Regulations & Compliance','Economic Trends','Industry News','Local & State News','Federal Policy'];
+const CAT_ICONS = {'Tax & Labor Law':'📋','Regulations & Compliance':'⚖️','Economic Trends':'📊','Industry News':'🏢','Local & State News':'🏙️','Federal Policy':'🏛️'};
+const ALL_VIEWS = ['dashboard','legal','products','upcoming','bookmarks','settings'];
+
+function sk(key) { return `pulse_${key}_${S.user?.email||'_'}`; }
+function itemId(item) {
+  const str = (item.title||'') + (item.source||'');
+  let h = 0;
+  for (let i=0; i<str.length; i++) h = (Math.imul(31,h) + str.charCodeAt(i)) | 0;
+  return 'i' + Math.abs(h).toString(36);
+}
+
+// ── Persist ──
+function persist() {
+  try {
+    localStorage.setItem('pulse_session', JSON.stringify(S.user));
+    if (S.user) {
+      localStorage.setItem(sk('profile'),   JSON.stringify(S.profile));
+      localStorage.setItem(sk('news'),      JSON.stringify(S.news));
+      localStorage.setItem(sk('legal'),     JSON.stringify(S.legal));
+      localStorage.setItem(sk('products'),  JSON.stringify(S.products));
+      localStorage.setItem(sk('upcoming'),  JSON.stringify(S.upcoming));
+      localStorage.setItem(sk('bookmarks'), JSON.stringify(S.bookmarks));
+      localStorage.setItem(sk('dismissed'), JSON.stringify(S.dismissed));
+    }
+  } catch(e){}
+}
+
+function restore() {
+  try {
+    S.user = JSON.parse(localStorage.getItem('pulse_session')||'null');
+    if (S.user) {
+      S.profile   = JSON.parse(localStorage.getItem(sk('profile'))||'null');
+      S.news      = JSON.parse(localStorage.getItem(sk('news'))||'[]');
+      S.legal     = JSON.parse(localStorage.getItem(sk('legal'))||'[]');
+      S.products  = JSON.parse(localStorage.getItem(sk('products'))||'[]');
+      S.upcoming  = JSON.parse(localStorage.getItem(sk('upcoming'))||'[]');
+      S.bookmarks = JSON.parse(localStorage.getItem(sk('bookmarks'))||'{}');
+      S.dismissed = JSON.parse(localStorage.getItem(sk('dismissed'))||'{}');
+    }
+  } catch(e){}
+}
+
+// ══════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════
+restore();
+if (S.user && S.profile) bootApp();
+else if (S.user && !S.profile) showScreen('onboarding');
+else showScreen('landing');
+
+function showScreen(name) {
+  ['landing','onboarding','app'].forEach(id =>
+    document.getElementById(id).classList.toggle('hidden', id!==name));
+}
+
+// ══════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════
+function openAuth(tab) { document.getElementById('auth-overlay').classList.remove('hidden'); switchAuthTab(tab); }
+function closeAuth() { document.getElementById('auth-overlay').classList.add('hidden'); }
+document.getElementById('auth-overlay').addEventListener('click', e => { if (e.target.id==='auth-overlay') closeAuth(); });
+
+function switchAuthTab(tab) {
+  ['signup','login'].forEach(t => {
+    document.getElementById(`tab-${t}`).classList.toggle('on', t===tab);
+    document.getElementById(`form-${t}`).classList.toggle('hidden', t!==tab);
+  });
+}
+
+function doSignup() {
+  const name=document.getElementById('su-name').value.trim();
+  const email=document.getElementById('su-email').value.trim().toLowerCase();
+  const pass=document.getElementById('su-pass').value;
+  if (!name||!email||!pass) { toast('Please fill in all fields.','err'); return; }
+  if (!email.includes('@')) { toast('Please enter a valid email.','err'); return; }
+  if (pass.length<6) { toast('Password must be 6+ characters.','err'); return; }
+  const users=JSON.parse(localStorage.getItem('pulse_users')||'{}');
+  if (users[email]) { toast('An account with this email already exists.','err'); return; }
+  users[email]={name,email,pass};
+  localStorage.setItem('pulse_users',JSON.stringify(users));
+  S.user={name,email}; S.profile=null; S.news=[]; S.legal=[]; S.products=[]; S.upcoming=[];
+  persist(); closeAuth(); showScreen('onboarding');
+  document.getElementById('ob-email').value=email;
+  toast(`Welcome, ${name.split(' ')[0]}!`,'ok');
+}
+
+function doLogin() {
+  const email=document.getElementById('li-email').value.trim().toLowerCase();
+  const pass=document.getElementById('li-pass').value;
+  if (!email||!pass) { toast('Please enter your credentials.','err'); return; }
+  const users=JSON.parse(localStorage.getItem('pulse_users')||'{}');
+  const u=users[email];
+  if (!u||u.pass!==pass) { toast('Invalid email or password.','err'); return; }
+  S.user={name:u.name,email:u.email};
+  S.profile   = JSON.parse(localStorage.getItem(`pulse_profile_${email}`)||'null');
+  S.news      = JSON.parse(localStorage.getItem(sk('news'))||'[]');
+  S.legal     = JSON.parse(localStorage.getItem(sk('legal'))||'[]');
+  S.products  = JSON.parse(localStorage.getItem(sk('products'))||'[]');
+  S.upcoming  = JSON.parse(localStorage.getItem(sk('upcoming'))||'[]');
+  S.bookmarks = JSON.parse(localStorage.getItem(sk('bookmarks'))||'{}');
+  S.dismissed = JSON.parse(localStorage.getItem(sk('dismissed'))||'{}');
+  persist(); closeAuth();
+  if (!S.profile) { showScreen('onboarding'); document.getElementById('ob-email').value=email; }
+  else bootApp();
+  toast(`Welcome back, ${u.name.split(' ')[0]}!`,'ok');
+}
+
+function doLogout() {
+  S.user=null; S.profile=null; S.news=[]; S.legal=[]; S.products=[]; S.upcoming=[];
+  localStorage.removeItem('pulse_session');
+  showScreen('landing'); toast('Signed out.');
+}
+
+// ══════════════════════════════════════
+//  ONBOARDING
+// ══════════════════════════════════════
+function obGo(step) {
+  [1,2,3].forEach(i => {
+    document.getElementById(`ob-s${i}`).classList.toggle('hidden', i!==step);
+    document.getElementById(`pip-${i}`).classList.toggle('on', i<=step);
+  });
+  document.getElementById('ob-step-lbl').textContent=`Step ${step} of 3`;
+}
+
+function obNext(step) {
+  if (step===1) {
+    const nm=document.getElementById('ob-name').value.trim();
+    const ind=document.getElementById('ob-industry').value;
+    const desc=document.getElementById('ob-desc').value.trim();
+    const city=document.getElementById('ob-city').value.trim();
+    const state=document.getElementById('ob-state').value;
+    const sz=document.getElementById('ob-size').value;
+    if (!nm||!ind||!desc||!city||!state||!sz) { toast('Please complete all fields.','err'); return; }
+    S.obDraft={businessName:nm,industry:ind,description:desc,location:city+', '+state,city,state,size:sz};
+  }
+  if (step===2 && S.selectedCats.length===0) { toast('Please select at least one category.','err'); return; }
+  obGo(step+1);
+}
+
+function toggleCat(el) {
+  const tmp=document.createElement('textarea'); tmp.innerHTML=el.dataset.cat; const cat=tmp.value;
+  el.classList.toggle('on');
+  if (el.classList.contains('on')) { if (!S.selectedCats.includes(cat)) S.selectedCats.push(cat); }
+  else S.selectedCats=S.selectedCats.filter(c=>c!==cat);
+}
+
+function obFinish() {
+  const email=document.getElementById('ob-email').value.trim();
+  const time=document.getElementById('ob-time').value;
+  if (!email) { toast('Please enter a notification email.','err'); return; }
+  S.profile={...S.obDraft,categories:[...S.selectedCats],notifyEmail:email,notifyTime:time,notifyEnabled:true};
+  persist(); bootApp();
+  toast('Profile saved! Fetching your briefing...','ok');
+}
+
+// ══════════════════════════════════════
+//  APP BOOT
+// ══════════════════════════════════════
+function bootApp() {
+  showScreen('app');
+  const u=S.user;
+  const initials=u.name?u.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase():u.email[0].toUpperCase();
+  const av=document.getElementById('avatar');
+  av.childNodes[0].textContent=initials;
+  const hr=new Date().getHours();
+  const gday=hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
+  const biz=S.profile?.businessName||'';
+  document.getElementById('greeting').textContent=`${gday}${biz?' — '+biz:''}`;
+  document.getElementById('greeting-sub').textContent=`${new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})} · Personalized for your business`;
+  gotoView('dashboard');
+  populateSettings(); renderSbFilters(); updateSbBadges();
+  if (S.news.length===0) fetchNews(); else renderNews();
+  renderLegal(); renderProducts(); renderUpcoming(); renderBookmarks();
+}
+
+function gotoView(v) {
+  ALL_VIEWS.forEach(n => {
+    document.getElementById(`vw-${n}`).classList.toggle('hidden', n!==v);
+    const sb=document.getElementById(`sb-${n}`);
+    if (sb) sb.classList.toggle('on', n===v);
+  });
+  document.getElementById('umenu').classList.add('hidden');
+  // Lazy-load sections on first visit
+  if (v==='legal' && !S.loadingLegal && S.legal.length===0) fetchLegal();
+  if (v==='products' && !S.loadingProducts && S.products.length===0) fetchProducts();
+  if (v==='upcoming' && !S.loadingUpcoming && S.upcoming.length===0) fetchUpcoming();
+  if (v==='bookmarks') renderBookmarks();
+}
+
+function toggleMenu() { document.getElementById('umenu').classList.toggle('hidden'); }
+document.addEventListener('click', e => {
+  const av=document.getElementById('avatar');
+  if (av&&!av.contains(e.target)) document.getElementById('umenu').classList.add('hidden');
+});
+
+// ══════════════════════════════════════
+//  SHARED API HELPER  (timeout + retry)
+// ══════════════════════════════════════
+async function callAPI(systemPrompt, userPrompt, maxTokens=3000, attempt=1) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 28000); // 28s timeout
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      signal: controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        'anthropic-version': '2023-06-01',
+        'anthropic-beta': 'web-search-2025-03-05'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: maxTokens,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }]
+      })
+    });
+    clearTimeout(timeout);
+    if (res.status === 429 || res.status >= 500) {
+      const e = await res.text();
+      if (attempt < 2) {
+        console.warn('[Pulse] API '+res.status+', retrying in 3s...');
+        await new Promise(r => setTimeout(r, 3000));
+        return callAPI(systemPrompt, userPrompt, maxTokens, attempt+1);
+      }
+      throw new Error('HTTP '+res.status+' after retry: '+e.slice(0,200));
+    }
+    if (!res.ok) { const e=await res.text(); throw new Error('HTTP '+res.status+': '+e.slice(0,200)); }
+    const data = await res.json();
+    if (data.error) {
+      if (attempt < 2 && (data.error.type==='overloaded_error'||data.error.type==='rate_limit_error')) {
+        console.warn('[Pulse] API error '+data.error.type+', retrying in 3s...');
+        await new Promise(r => setTimeout(r, 3000));
+        return callAPI(systemPrompt, userPrompt, maxTokens, attempt+1);
+      }
+      throw new Error('API: '+data.error.message);
+    }
+    const text = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+    if (!text.trim()) throw new Error('Empty response from API — please try again.');
+    return text;
+  } catch(err) {
+    clearTimeout(timeout);
+    if (err.name==='AbortError') throw new Error('Request timed out (28s) — please try again.');
+    throw err;
+  }
+}
+
+function parseTagged(text, tag) {
+  let items=[];
+  const m=text.match(new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`));
+  if (m) {
+    try { items=JSON.parse(m[1].trim()); } catch(e) {
+      const clean=m[1].trim().replace(/,(\s*[}\]])/g,'$1');
+      try { items=JSON.parse(clean); } catch(e2){}
+    }
+  }
+  if (!items.length) {
+    const arrays=[...text.matchAll(/\[[\s\S]+\]/g)];
+    for (const a of arrays.sort((a,b)=>b[0].length-a[0].length)) {
+      try { const p=JSON.parse(a[0]); if (Array.isArray(p)&&p.length) { items=p; break; } } catch(e){}
+    }
+  }
+  return items;
+}
+
+// ══════════════════════════════════════
+//  FETCH — NEWS (Dashboard)
+// ══════════════════════════════════════
+async function fetchNews() {
+  if (S.loading) return;
+  S.loading=true; renderSkeleton('news-feed','count-lbl');
+  const p=S.profile;
+  const sys=[
+    'You are a business intelligence news analyst. Use web search to find REAL, CURRENT news from the past 7 days.',
+    'Output ONLY a raw JSON array in <newsdata></newsdata> tags.',
+    'Each item: {"title":"...","summary":"2-3 sentences","category":"Tax & Labor Law|Regulations & Compliance|Economic Trends|Industry News|Local & State News|Federal Policy","impact":"high|medium|low","source":"...","url":"https://...","publishedAt":"e.g. 2h ago","whyItMatters":"one sentence for this business"}',
+    'IMPORTANT: url must be real https:// link. Use https://news.google.com/search?q=ENCODED_TITLE as fallback. Never use #.',
+    'Do NOT output anything outside <newsdata></newsdata>.'
+  ].join(' ');
+  const usr='Find 8-10 REAL news stories (last 7 days) impacting:\nBusiness: '+p.businessName+'\nIndustry: '+p.industry+'\nDescription: '+p.description+'\nLocation: '+p.location+'\nSize: '+p.size+'\nCategories: '+p.categories.join(', ')+'\nToday: '+new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+'\nProvide real https:// URLs. Prioritize HIGH impact. Return ONLY <newsdata>[...]</newsdata>.';
+  try {
+    const text=await callAPI(sys,usr,3000);
+    const items=parseTagged(text,'newsdata');
+    if (!items.length) throw new Error('No news items returned. Please try again.');
+    S.news=items.map(n=>({...n,category:normalizeCategory(n.category),impact:normalizeImpact(n.impact),_id:itemId(n)}));
+    localStorage.setItem(sk('news'),JSON.stringify(S.news));
+    S.loading=false; renderNews(); renderSbFilters(); updateSbBadges();
+    toast('News feed updated — '+S.news.length+' stories','ok');
+  } catch(err) {
+    S.loading=false; renderError('news-feed','count-lbl',err.message);
+  }
+}
+
+// ══════════════════════════════════════
+//  FETCH — LEGAL
+// ══════════════════════════════════════
+async function fetchLegal() {
+  if (S.loadingLegal) return;
+  S.loadingLegal=true; renderSkeleton('legal-feed','legal-count-lbl');
+  const p=S.profile;
+  const sys=[
+    'You are a legal intelligence analyst for businesses. Use web search to find REAL, CURRENT legal developments from the past 30 days.',
+    'Output ONLY a raw JSON array in <legaldata></legaldata> tags.',
+    'Each item: {"title":"...","summary":"2-3 sentences","type":"lawsuit|class_action|compliance_deadline|regulatory_enforcement|legislation|court_ruling","impact":"high|medium|low","source":"...","url":"https://...","publishedAt":"e.g. 2h ago","whyItMatters":"one sentence specific to this business","deadline":"ISO date if applicable or null"}',
+    'IMPORTANT: url must be real https:// link. Use https://news.google.com/search?q=ENCODED_TITLE as fallback.',
+    'Do NOT output anything outside <legaldata></legaldata>.'
+  ].join(' ');
+  const usr='Find 6-8 REAL legal developments (past 30 days) that could impact:\nBusiness: '+p.businessName+'\nIndustry: '+p.industry+'\nDescription: '+p.description+'\nLocation: '+p.location+'\nToday: '+new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+'\nFocus on: lawsuits, class actions, compliance filing deadlines, regulatory enforcement actions, relevant court rulings, and new legislation affecting this industry.\nReturn ONLY <legaldata>[...]</legaldata>.';
+  try {
+    const text=await callAPI(sys,usr,2000);
+    const items=parseTagged(text,'legaldata');
+    if (!items.length) throw new Error('No legal items returned. Please try again.');
+    S.legal=items.map(n=>({...n,impact:normalizeImpact(n.impact),_section:'legal',_id:itemId(n)}));
+    localStorage.setItem(sk('legal'),JSON.stringify(S.legal));
+    S.loadingLegal=false; renderLegal(); updateSbBadges();
+    toast('Legal section updated — '+S.legal.length+' items','ok');
+  } catch(err) {
+    S.loadingLegal=false; renderError('legal-feed','legal-count-lbl',err.message);
+  }
+}
+
+// ══════════════════════════════════════
+//  FETCH — PRODUCTS
+// ══════════════════════════════════════
+async function fetchProducts() {
+  if (S.loadingProducts) return;
+  S.loadingProducts=true; renderSkeleton('prod-feed','prod-count-lbl');
+  const p=S.profile;
+  const sys=[
+    'You are a product intelligence analyst for businesses. Use web search to find REAL, RECENT product launches, tools, equipment, and supply news.',
+    'Output ONLY a raw JSON array in <proddata></proddata> tags.',
+    'Each item: {"title":"...","summary":"2-3 sentences","type":"new_product|equipment|software|supply_chain|competitor_launch|pricing_change","impact":"high|medium|low","source":"...","url":"https://...","publishedAt":"e.g. 3d ago","whyItMatters":"one sentence specific to this business","price":"price range or null","vendor":"vendor name or null"}',
+    'IMPORTANT: url must be real https:// link. Use Google News search as fallback.',
+    'Do NOT output anything outside <proddata></proddata>.'
+  ].join(' ');
+  const usr='Find 6-8 REAL product/supply/equipment news items (past 30 days) relevant to:\nBusiness: '+p.businessName+'\nIndustry: '+p.industry+'\nDescription: '+p.description+'\nLocation: '+p.location+'\nToday: '+new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+'\nFocus on: new equipment launches, software/SaaS tools for this industry, supply chain updates, new procurement options, competitor product moves, pricing changes on commonly used supplies.\nReturn ONLY <proddata>[...]</proddata>.';
+  try {
+    const text=await callAPI(sys,usr,2000);
+    const items=parseTagged(text,'proddata');
+    if (!items.length) throw new Error('No product items returned. Please try again.');
+    S.products=items.map(n=>({...n,impact:normalizeImpact(n.impact),_section:'products',_id:itemId(n)}));
+    localStorage.setItem(sk('products'),JSON.stringify(S.products));
+    S.loadingProducts=false; renderProducts();
+    toast('Industry Products updated — '+S.products.length+' items','ok');
+  } catch(err) {
+    S.loadingProducts=false; renderError('prod-feed','prod-count-lbl',err.message);
+  }
+}
+
+// ══════════════════════════════════════
+//  FETCH — UPCOMING
+// ══════════════════════════════════════
+async function fetchUpcoming() {
+  if (S.loadingUpcoming) return;
+  S.loadingUpcoming=true; renderSkeleton('upcoming-feed','upcoming-count-lbl');
+  const p=S.profile;
+  const cutoff=new Date(); cutoff.setDate(cutoff.getDate()+90);
+  const sys=[
+    'You are a forward-looking business intelligence analyst. Use web search to find REAL upcoming deadlines, events, and changes.',
+    'Output ONLY a raw JSON array in <upcomingdata></upcomingdata> tags.',
+    'Each item: {"title":"...","summary":"2-3 sentences","type":"deadline|event|law|forecast","impact":"high|medium|low","source":"...","url":"https://...","dueDate":"YYYY-MM-DD","whyItMatters":"one sentence specific to this business"}',
+    'dueDate MUST be a real calendar date in YYYY-MM-DD format. Sort by soonest first.',
+    'IMPORTANT: url must be real https:// link. Use Google News search as fallback.',
+    'Do NOT output anything outside <upcomingdata></upcomingdata>.'
+  ].join(' ');
+  const today=new Date().toISOString().slice(0,10);
+  const usr='Find 8-10 REAL upcoming items (next 90 days, between '+today+' and '+cutoff.toISOString().slice(0,10)+') for:\nBusiness: '+p.businessName+'\nIndustry: '+p.industry+'\nDescription: '+p.description+'\nLocation: '+p.location+'\nSize: '+p.size+'\nInclude: regulatory compliance deadlines, tax filing dates, laws taking effect, industry conferences/trade shows, government enforcement start dates, and market/economic forecasts.\nReturn ONLY <upcomingdata>[...]</upcomingdata>.';
+  try {
+    const text=await callAPI(sys,usr,2000);
+    const items=parseTagged(text,'upcomingdata');
+    if (!items.length) throw new Error('No upcoming items returned. Please try again.');
+    S.upcoming=items.map(n=>({...n,impact:normalizeImpact(n.impact),_section:'upcoming',_id:itemId(n)}))
+      .sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate));
+    localStorage.setItem(sk('upcoming'),JSON.stringify(S.upcoming));
+    S.loadingUpcoming=false; renderUpcoming(); updateSbBadges();
+    toast('Upcoming section updated — '+S.upcoming.length+' items','ok');
+  } catch(err) {
+    S.loadingUpcoming=false; renderError('upcoming-feed','upcoming-count-lbl',err.message);
+  }
+}
+
+// Sequential fetch queue — avoids concurrent rate-limit hits.
+// News first (most important), then others with 1.5s gaps.
+async function fetchAll() {
+  S.loading=false; S.loadingLegal=false; S.loadingProducts=false; S.loadingUpcoming=false;
+  S.news=[]; S.legal=[]; S.products=[]; S.upcoming=[];
+  await fetchNews();
+  // Stagger the remaining fetches so they don't pile onto the same rate-limit window
+  setTimeout(fetchLegal,    1500);
+  setTimeout(fetchProducts, 3000);
+  setTimeout(fetchUpcoming, 4500);
+}
+
+function doRefreshAll() { fetchAll(); }
+
+// ══════════════════════════════════════
+//  NORMALIZE HELPERS
+// ══════════════════════════════════════
+function normalizeImpact(raw) {
+  const v=(raw||'').toLowerCase();
+  return ['high','medium','low'].includes(v)?v:'medium';
+}
+
+function normalizeCategory(raw) {
+  if (!raw) return 'Industry News';
+  const r=raw.toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+  const canonical=['Tax & Labor Law','Regulations & Compliance','Economic Trends','Industry News','Local & State News','Federal Policy'];
+  const norm=canonical.map(c=>c.toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim());
+  const exact=norm.indexOf(r);
+  if (exact!==-1) return canonical[exact];
+  const MAP=[
+    [['tax','labor','labour','wage','tip','payroll','employment','tipped','minimum wage'],'Tax & Labor Law'],
+    [['regulat','complian','zoning','permit','license','licence','osha','safety','inspection','emission','carb','environmental','fire code','health code','ada'],'Regulations & Compliance'],
+    [['econom','inflation','interest rate','gdp','federal reserve','fed rate','recession','supply chain','housing market','tariff','trade'],'Economic Trends'],
+    [['local','state news','city','county','municipal'],'Local & State News'],
+    [['federal','congress','senate','legislation','executive order','irs','department of','white house'],'Federal Policy'],
+  ];
+  for (const [kws,cat] of MAP) { if (kws.some(kw=>r.includes(kw))) return cat; }
+  return 'Industry News';
+}
+
+// ══════════════════════════════════════
+//  BOOKMARK / DISMISS / SHARE
+// ══════════════════════════════════════
+function toggleBookmark(id, item) {
+  if (S.bookmarks[id]) { delete S.bookmarks[id]; toast('Removed from saved items'); }
+  else { S.bookmarks[id]=item; toast('Saved!','ok'); }
+  persist(); updateSbBadges();
+  // Re-render just that card's bookmark button
+  document.querySelectorAll(`[data-card-id="${id}"] .bm-btn`).forEach(btn => {
+    btn.textContent = S.bookmarks[id] ? '🔖' : '🔖';
+    btn.classList.toggle('active', !!S.bookmarks[id]);
+    btn.closest('.ncard').classList.toggle('bookmarked', !!S.bookmarks[id]);
+  });
+  if (document.getElementById('vw-bookmarks') && !document.getElementById('vw-bookmarks').classList.contains('hidden')) renderBookmarks();
+}
+
+function dismissItem(id) {
+  S.dismissed[id]=true; persist();
+  const card=document.querySelector(`[data-card-id="${id}"]`);
+  if (card) { card.classList.add('dismissed'); setTimeout(()=>card.remove(),400); }
+  toast('Dismissed');
+}
+
+function shareItem(item) {
+  const text=item.title+' — '+item.source;
+  const url=(item.url&&item.url.startsWith('http'))?item.url:'https://news.google.com/search?q='+encodeURIComponent(item.title);
+  if (navigator.share) { navigator.share({title:item.title,text:text,url:url}).catch(()=>{}); }
+  else { navigator.clipboard.writeText(url+'\n\n'+text).then(()=>toast('Link copied to clipboard','ok')).catch(()=>toast('Could not copy link','err')); }
+}
+
+function openStory(item) {
+  const raw=(item.url||'').trim();
+  const url=(raw.startsWith('http')&&raw.length>12&&raw!=='#')?raw:'https://news.google.com/search?q='+encodeURIComponent(item.title);
+  const w=window.open(url,'_blank');
+  if (!w||w.closed) { try{window.top.open(url,'_blank');}catch(e){window.location.href=url;} }
+}
+
+function updateSbBadges() {
+  const highNews=S.news.filter(n=>n.impact==='high'&&!S.dismissed[n._id]).length;
+  const highLegal=S.legal.filter(n=>n.impact==='high'&&!S.dismissed[n._id]).length;
+  const urgentUpcoming=S.upcoming.filter(n=>daysUntil(n.dueDate)<=14&&!S.dismissed[n._id]).length;
+  const bmCount=Object.keys(S.bookmarks).length;
+  setBadge('dashboard', highNews);
+  setBadge('legal', highLegal);
+  setBadge('upcoming', urgentUpcoming);
+  setBadge('bookmarks', bmCount, true);
+}
+
+function setBadge(view, count, always=false) {
+  const el=document.getElementById(`sb-badge-${view}`);
+  if (!el) return;
+  el.textContent=count;
+  el.classList.toggle('hidden', !always && count===0);
+}
+
+function daysUntil(dateStr) {
+  if (!dateStr) return 999;
+  const diff=new Date(dateStr)-new Date();
+  return Math.ceil(diff/(1000*60*60*24));
+}
+
+// ══════════════════════════════════════
+//  EXPORT
+// ══════════════════════════════════════
+function exportSection(section) {
+  let items=[], title='';
+  if (section==='dashboard') { items=filteredNews(); title='Business News Briefing'; }
+  else if (section==='legal') { items=filteredLegal(); title='Legal Intelligence'; }
+  else if (section==='products') { items=filteredProducts(); title='Industry Products'; }
+  else if (section==='upcoming') { items=filteredUpcoming(); title='Upcoming Deadlines & Events'; }
+  else if (section==='bookmarks') { items=Object.values(S.bookmarks); title='Saved Items'; }
+  if (!items.length) { toast('No items to export','err'); return; }
+  const biz=S.profile?.businessName||'Your Business';
+  const date=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const rows=items.map(n=>`
+    <div style="border:1px solid #e5e1d6;border-radius:8px;padding:16px;margin-bottom:12px;border-left:4px solid #1A56DB;">
+      <div style="font-size:11px;color:#9CA3AF;margin-bottom:6px;">${n.source||''} · ${n.publishedAt||n.dueDate||''}</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:7px;">${n.title||''}</div>
+      <div style="font-size:13px;color:#374151;margin-bottom:8px;">${n.summary||''}</div>
+      ${n.whyItMatters?`<div style="background:#F5F3EF;padding:8px 11px;border-radius:6px;font-size:12px;color:#374151;"><strong>Why it matters:</strong> ${n.whyItMatters}</div>`:''}
+      ${n.url&&n.url.startsWith('http')?`<div style="margin-top:8px;"><a href="${n.url}" style="font-size:12px;color:#1A56DB;font-weight:700;">Read full story →</a></div>`:''}
+    </div>`).join('');
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pulse — ${title}</title><style>body{font-family:system-ui,sans-serif;max-width:700px;margin:40px auto;padding:0 24px;background:#F5F3EF;color:#111827;}</style></head><body><h1 style="font-size:24px;font-weight:700;margin-bottom:4px;">🔵 Pulse — ${title}</h1><p style="color:#9CA3AF;font-size:13px;margin-bottom:28px;">${biz} · ${date}</p>${rows}</body></html>`;
+  const blob=new Blob([html],{type:'text/html'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`pulse-${section}-${new Date().toISOString().slice(0,10)}.html`;
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('Exported!','ok');
+}
+
+// ══════════════════════════════════════
+//  CARD BUILDER (shared across sections)
+// ══════════════════════════════════════
+function buildCard(item, idx, opts={}) {
+  const {colorClass='m', badgeContent='', extraBadge='', footerExtra='', cardClass=''} = opts;
+  const id=item._id||itemId(item);
+  item._id=id;
+  const isBm=!!S.bookmarks[id];
+  const isDismissed=!!S.dismissed[id];
+  return `
+  <div class="ncard ${colorClass} ${cardClass} ${isBm?'bookmarked':''} ${isDismissed?'dismissed':''}"
+       data-card-id="${id}" style="animation:cardIn .4s ease ${idx*.05}s both">
+    <div class="ncard-body">
+      <div class="ncard-top">
+        <div class="ncard-badges">${badgeContent}</div>
+        <div class="ncard-meta">
+          <span class="ncard-date">${item.publishedAt||item.dueDate||'Recent'}</span>
+          <div class="ncard-actions-top">
+            <button class="icon-btn bm-btn ${isBm?'active':''}" title="Save" onclick='toggleBookmark("${id}",${JSON.stringify(item).replace(/'/g,"&#39;")})'>🔖</button>
+            <button class="icon-btn" title="Share" onclick='shareItem(${JSON.stringify(item).replace(/'/g,"&#39;")})'>📤</button>
+            <button class="icon-btn" title="Dismiss" onclick='dismissItem("${id}")'>✕</button>
+          </div>
+        </div>
+      </div>
+      <div class="ncard-title">${item.title||''}</div>
+      <div class="ncard-summary">${item.summary||''}</div>
+      ${item.whyItMatters?`<div class="ncard-why"><span class="ncard-why-icon">💡</span><span><strong>Why it matters:</strong> ${item.whyItMatters}</span></div>`:''}
+      ${extraBadge}
+      <div class="ncard-footer">
+        <span class="ncard-source">📰 ${item.source||''}</span>
+        <div class="ncard-footer-actions">
+          ${footerExtra}
+          <button class="ncard-link" onclick='openStory(${JSON.stringify(item).replace(/'/g,"&#39;")})' style="background:none;border:none;cursor:pointer;font-size:12px;font-weight:700;color:var(--accent);padding:0;font-family:inherit;">Read full story →</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════
+//  RENDER — NEWS (Dashboard)
+// ══════════════════════════════════════
+function filteredNews() {
+  return S.news.filter(n=>{
+    const c=S.catFilter==='all'||n.category===S.catFilter;
+    const i=S.impFilter==='all'||n.impact===S.impFilter;
+    return c&&i&&!S.dismissed[n._id||itemId(n)];
+  });
+}
+
+function renderNews() {
+  const feed=document.getElementById('news-feed');
+  const items=filteredNews();
+  document.getElementById('count-lbl').textContent=items.length+' stories';
+  if (!items.length) { feed.innerHTML=`<div class="empty"><div class="empty-icon">🔍</div><h3>No stories match this filter</h3><p>Try a different filter or refresh for new stories.</p><button class="btn btn-primary" onclick="resetFilters()">Clear filters</button></div>`; return; }
+  feed.innerHTML=items.map((n,i)=>{
+    const imp=n.impact||'medium';
+    const cc=imp==='high'?'h':imp==='low'?'l':'m';
+    const bc=imp==='high'?'badge-high':imp==='low'?'badge-low':'badge-med';
+    const icon=CAT_ICONS[n.category]||'📰';
+    return buildCard(n,i,{
+      colorClass:cc,
+      badgeContent:`<span class="badge badge-blue">${icon} ${n.category}</span><span class="badge ${bc}">● ${imp.charAt(0).toUpperCase()+imp.slice(1)} Impact</span>`
+    });
+  }).join('');
+}
+
+// ══════════════════════════════════════
+//  RENDER — LEGAL
+// ══════════════════════════════════════
+const LEGAL_TYPE_LABELS={'lawsuit':'⚖️ Lawsuit','class_action':'👥 Class Action','compliance_deadline':'⏰ Compliance Deadline','regulatory_enforcement':'🔍 Enforcement Action','legislation':'📜 Legislation','court_ruling':'🏛️ Court Ruling'};
+
+function filteredLegal() {
+  return S.legal.filter(n=>{
+    const i=S.legalImp==='all'||n.impact===S.legalImp;
+    return i&&!S.dismissed[n._id||itemId(n)];
+  });
+}
+
+function renderLegal() {
+  const feed=document.getElementById('legal-feed');
+  const items=filteredLegal();
+  document.getElementById('legal-count-lbl').textContent=items.length+' items';
+  if (!items.length) { feed.innerHTML=`<div class="empty"><div class="empty-icon">⚖️</div><h3>No legal items to show</h3><p>Legal intelligence loads when you visit this section. Try refreshing.</p><button class="btn btn-primary" onclick="fetchLegal()">Load legal updates</button></div>`; return; }
+  feed.innerHTML=items.map((n,i)=>{
+    const imp=n.impact||'medium';
+    const cc=imp==='high'?'h':imp==='low'?'l':'m';
+    const bc=imp==='high'?'badge-high':imp==='low'?'badge-low':'badge-med';
+    const typeLabel=LEGAL_TYPE_LABELS[n.type]||'⚖️ Legal';
+    return buildCard(n,i,{
+      colorClass:cc,
+      cardClass:'legal-card',
+      badgeContent:`<span class="badge badge-legal">${typeLabel}</span><span class="badge ${bc}">● ${imp.charAt(0).toUpperCase()+imp.slice(1)} Impact</span>`,
+      extraBadge: n.deadline?`<div style="margin-bottom:10px;"><span class="badge badge-high" style="background:var(--legal-bg);color:var(--legal)">📅 Deadline: ${n.deadline}</span></div>`:''
+    });
+  }).join('');
+}
+
+// ══════════════════════════════════════
+//  RENDER — PRODUCTS
+// ══════════════════════════════════════
+const PROD_TYPE_LABELS={'new_product':'🆕 New Product','equipment':'🔧 Equipment','software':'💻 Software','supply_chain':'📦 Supply Chain','competitor_launch':'🏁 Competitor Launch','pricing_change':'💰 Pricing Change'};
+
+function filteredProducts() {
+  return S.products.filter(n=>{
+    const i=S.prodImp==='all'||n.impact===S.prodImp;
+    return i&&!S.dismissed[n._id||itemId(n)];
+  });
+}
+
+function renderProducts() {
+  const feed=document.getElementById('prod-feed');
+  const items=filteredProducts();
+  document.getElementById('prod-count-lbl').textContent=items.length+' items';
+  if (!items.length) { feed.innerHTML=`<div class="empty"><div class="empty-icon">🛒</div><h3>No product updates to show</h3><p>Industry product intelligence loads when you visit this section.</p><button class="btn btn-primary" onclick="fetchProducts()">Load product updates</button></div>`; return; }
+  feed.innerHTML=items.map((n,i)=>{
+    const imp=n.impact||'medium';
+    const cc=imp==='high'?'h':imp==='low'?'l':'m';
+    const bc=imp==='high'?'badge-high':imp==='low'?'badge-low':'badge-med';
+    const typeLabel=PROD_TYPE_LABELS[n.type]||'🛒 Product';
+    const vendorPrice=(n.vendor||n.price)?`<div style="margin-bottom:10px;display:flex;gap:6px;">${n.vendor?`<span class="badge" style="background:#F0FDF4;color:#059669;">🏢 ${n.vendor}</span>`:''}${n.price?`<span class="badge" style="background:#F5F3FF;color:#7C3AED;">💰 ${n.price}</span>`:''}</div>`:'';
+    return buildCard(n,i,{
+      colorClass:cc,
+      cardClass:'prod-card',
+      badgeContent:`<span class="badge badge-prod">${typeLabel}</span><span class="badge ${bc}">● ${imp.charAt(0).toUpperCase()+imp.slice(1)}</span>`,
+      extraBadge:vendorPrice
+    });
+  }).join('');
+}
+
+// ══════════════════════════════════════
+//  RENDER — UPCOMING
+// ══════════════════════════════════════
+const UPCOMING_TYPE_LABELS={'deadline':'⏰ Deadline','event':'🎯 Event','law':'📜 Law Taking Effect','forecast':'📈 Forecast'};
+
+function filteredUpcoming() {
+  return S.upcoming.filter(n=>{
+    const t=S.upcomingFilter==='all'||n.type===S.upcomingFilter;
+    return t&&!S.dismissed[n._id||itemId(n)];
+  });
+}
+
+function renderUpcoming() {
+  const feed=document.getElementById('upcoming-feed');
+  const items=filteredUpcoming();
+  document.getElementById('upcoming-count-lbl').textContent=items.length+' items';
+  if (!items.length) { feed.innerHTML=`<div class="empty"><div class="empty-icon">📅</div><h3>No upcoming items to show</h3><p>Forward-looking intelligence loads when you visit this section.</p><button class="btn btn-primary" onclick="fetchUpcoming()">Load upcoming items</button></div>`; return; }
+  feed.innerHTML=items.map((n,i)=>{
+    const days=daysUntil(n.dueDate);
+    const urgency=days<=14?'urgent':days<=30?'soon':'later';
+    const daysLabel=days<=0?'Today!':days===1?'Tomorrow':days+' days';
+    const countdownHtml=n.dueDate?`<span class="countdown ${urgency}">⏱ ${daysLabel}</span>`:'';
+    const typeLabel=UPCOMING_TYPE_LABELS[n.type]||'📅 Upcoming';
+    const imp=n.impact||'medium';
+    const bc=imp==='high'?'badge-high':imp==='low'?'badge-low':'badge-med';
+    return buildCard(n,i,{
+      colorClass: urgency==='urgent'?'h':urgency==='soon'?'m':'l',
+      cardClass:'upcoming-card',
+      badgeContent:`<span class="badge badge-upcoming">${typeLabel}</span><span class="badge ${bc}">● ${imp.charAt(0).toUpperCase()+imp.slice(1)}</span>`,
+      extraBadge: n.dueDate?`<div style="margin-bottom:10px;display:flex;gap:8px;align-items:center;">${countdownHtml}<span style="font-size:12px;color:var(--muted);">📅 ${n.dueDate}</span></div>`:''
+    });
+  }).join('');
+}
+
+// ══════════════════════════════════════
+//  RENDER — BOOKMARKS
+// ══════════════════════════════════════
+function renderBookmarks() {
+  const feed=document.getElementById('bm-feed');
+  const items=Object.values(S.bookmarks);
+  document.getElementById('bm-count-lbl').textContent=items.length+' saved items';
+  if (!items.length) {
+    feed.innerHTML=`<div class="empty"><div class="empty-icon">🔖</div><h3>No saved items yet</h3><p>Click the bookmark icon on any card across News, Legal, Products, or Upcoming to save it here.</p></div>`;
+    return;
+  }
+  feed.innerHTML=items.map((n,i)=>{
+    const imp=n.impact||'medium';
+    const cc=imp==='high'?'h':imp==='low'?'l':'m';
+    const bc=imp==='high'?'badge-high':imp==='low'?'badge-low':'badge-med';
+    const sectionBadge=n._section?`<span class="badge" style="background:var(--bg);color:var(--muted);">${n._section==='legal'?'⚖️ Legal':n._section==='products'?'🛒 Products':n._section==='upcoming'?'📅 Upcoming':'📊 News'}</span>`:'';
+    return buildCard(n,i,{
+      colorClass:cc,
+      badgeContent:`${sectionBadge}<span class="badge ${bc}">● ${imp.charAt(0).toUpperCase()+imp.slice(1)}</span>`
+    });
+  }).join('');
+}
+
+// ══════════════════════════════════════
+//  SKELETON / ERROR
+// ══════════════════════════════════════
+function renderSkeleton(feedId, countId) {
+  if (countId) document.getElementById(countId).textContent='Loading...';
+  document.getElementById(feedId).innerHTML=[1,2,3,4].map(()=>`
+    <div class="skel-card">
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div class="skel" style="height:19px;width:120px;border-radius:999px"></div>
+        <div class="skel" style="height:19px;width:88px;border-radius:999px"></div>
+      </div>
+      <div class="skel" style="height:16px;width:88%;margin-bottom:9px"></div>
+      <div class="skel" style="height:12px;width:100%;margin-bottom:5px"></div>
+      <div class="skel" style="height:12px;width:80%;margin-bottom:5px"></div>
+      <div class="skel" style="height:12px;width:55%;margin-top:8px"></div>
+    </div>`).join('');
+}
+
+function renderError(feedId, countId, msg) {
+  if (countId) document.getElementById(countId).textContent='Error';
+  document.getElementById(feedId).innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><h3>Couldn't load content</h3><p>${msg||'Please try again.'}</p><button class="btn btn-primary" onclick="doRefreshAll()">Try again</button></div>`;
+}
+
+// ══════════════════════════════════════
+//  FILTERS
+// ══════════════════════════════════════
+function renderSbFilters() {
+  const cats=S.profile?.categories||ALL_CATS;
+  const counts={};
+  S.news.forEach(n=>{ counts[n.category]=(counts[n.category]||0)+1; });
+  const items=[{cat:'all',label:'All Stories',icon:'📰'},...cats.map(c=>({cat:c,label:c,icon:CAT_ICONS[c]||'📰'}))];
+  document.getElementById('sb-filters').innerHTML=items.map(({cat,label,icon})=>{
+    const count=cat==='all'?S.news.length:(counts[cat]||0);
+    return `<div class="fchip ${S.catFilter===cat?'on':''}" data-catkey="${encodeURIComponent(cat)}">
+      <span class="fchip-left"><span>${icon}</span>${label}</span>
+      <span class="fchip-count">${count}</span></div>`;
+  }).join('');
+  document.querySelectorAll('#sb-filters .fchip').forEach(el=>{
+    el.addEventListener('click',()=>setCat(decodeURIComponent(el.dataset.catkey),el));
+  });
+}
+
+function setCat(cat,el) {
+  S.catFilter=cat;
+  document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('on'));
+  if (el) el.classList.add('on');
+  renderNews();
+  document.getElementById('count-lbl').textContent=filteredNews().length+' stories';
+}
+
+function setImp(imp,el) {
+  S.impFilter=imp;
+  document.querySelectorAll('.itab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on'); renderNews();
+}
+
+function setLegalImp(imp,el) {
+  S.legalImp=imp;
+  document.querySelectorAll('.litab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on'); renderLegal();
+}
+
+function setProdImp(imp,el) {
+  S.prodImp=imp;
+  document.querySelectorAll('.pitab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on'); renderProducts();
+}
+
+function setUpcomingFilter(f,el) {
+  S.upcomingFilter=f;
+  document.querySelectorAll('.utab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on'); renderUpcoming();
+}
+
+function resetFilters() {
+  S.catFilter='all'; S.impFilter='all';
+  document.querySelectorAll('.itab').forEach(t=>t.classList.remove('on'));
+  document.querySelector('.itab').classList.add('on');
+  renderSbFilters(); renderNews();
+}
+
+// ══════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════
+function populateSettings() {
+  if (!S.profile) return;
+  const p=S.profile;
+  document.getElementById('s-name').value=p.businessName||'';
+  document.getElementById('s-industry').value=p.industry||'';
+  document.getElementById('s-desc').value=p.description||'';
+  const _city=p.city||(p.location||'').split(',')[0].trim();
+  const _state=p.state||(p.location||'').split(',')[1]?.trim()||'';
+  document.getElementById('s-city').value=_city;
+  const _stSel=document.getElementById('s-state');
+  [..._stSel.options].forEach(o=>{o.selected=o.value.trim()===_state;});
+  document.getElementById('s-size').value=p.size||'';
+  document.getElementById('s-email').value=p.notifyEmail||'';
+  const ts=document.getElementById('s-time');
+  [...ts.options].forEach(o=>{if(o.value===p.notifyTime)o.selected=true;});
+  document.getElementById('tog-digest').classList.toggle('on',p.notifyEnabled!==false);
+  document.getElementById('s-cats').innerHTML=ALL_CATS.map(c=>`
+    <button class="cat-btn ${(p.categories||[]).includes(c)?'on':''}" data-cat="${c}" onclick="toggleCat(this)">
+      <span class="cat-icon">${CAT_ICONS[c]}</span> ${c}
+    </button>`).join('');
+}
+
+function saveProfile() {
+  if (!S.profile) S.profile={};
+  S.profile.businessName=document.getElementById('s-name').value.trim();
+  S.profile.industry=document.getElementById('s-industry').value.trim();
+  S.profile.description=document.getElementById('s-desc').value.trim();
+  const _sc=document.getElementById('s-city').value.trim();
+  const _ss=document.getElementById('s-state').value;
+  S.profile.city=_sc; S.profile.state=_ss;
+  S.profile.location=_sc&&_ss?_sc+', '+_ss:(_sc||_ss);
+  S.profile.size=document.getElementById('s-size').value.trim();
+  persist(); toast('Profile saved! Refreshing all sections...','ok');
+  setTimeout(async ()=>{ S.loading=false; S.news=[]; await fetchNews(); setTimeout(fetchLegal,1500); setTimeout(fetchProducts,3000); setTimeout(fetchUpcoming,4500); },600);
+}
+
+function saveCategories() {
+  const selected=[...document.querySelectorAll('#s-cats .cat-btn.on')].map(el=>el.dataset.cat);
+  if (!selected.length) { toast('Select at least one category.','err'); return; }
+  if (!S.profile) S.profile={};
+  S.profile.categories=selected; S.selectedCats=[...selected];
+  persist(); renderSbFilters(); toast('Categories updated!','ok');
+}
+
+function saveNotifs() {
+  if (!S.profile) return;
+  S.profile.notifyEmail=document.getElementById('s-email').value.trim();
+  S.profile.notifyTime=document.getElementById('s-time').value;
+  persist(); toast('Notification settings saved!','ok');
+}
+
+function toggleDigest(el) {
+  el.classList.toggle('on');
+  if (S.profile) { S.profile.notifyEnabled=el.classList.contains('on'); persist(); }
+}
+
+// ══════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════
+function toast(msg,type='') {
+  const c=document.getElementById('toasts');
+  const el=document.createElement('div');
+  el.className=`toast ${type}`; el.textContent=msg;
+  c.appendChild(el); setTimeout(()=>el.remove(),3600);
+}
+</script>
+</body>
+</html>
