@@ -811,7 +811,7 @@ async function callAPI(systemPrompt, userPrompt, maxTokens=3000, attempt=1) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 28000); // 28s timeout
   try {
-    const res = await fetch('s.co/functions/v1/anthropic-proxy', {
+    const res = await fetch('https://adkwzhpzjhjgcbsekuai.supabase.co/functions/v1/anthropic-proxy', {
       method: 'POST',
       signal: controller.signal,
       headers: {
