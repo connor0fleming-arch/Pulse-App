@@ -809,7 +809,7 @@ document.addEventListener('click', e => {
 // ══════════════════════════════════════
 async function callAPI(systemPrompt, userPrompt, maxTokens=3000, attempt=1) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 28000); // 28s timeout
+  const timeout = setTimeout(() => controller.abort(), 60000); // 28s timeout
   try {
     const res = await fetch('https://adkwzhpzjhjgcbsekuai.supabase.co/functions/v1/anthropic-proxy', {
       method: 'POST',
