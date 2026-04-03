@@ -807,7 +807,7 @@ document.addEventListener('click', e => {
 // ══════════════════════════════════════
 //  SHARED API HELPER  (timeout + retry)
 // ══════════════════════════════════════
-async function callAPI(systemPrompt, userPrompt, maxTokens=3000, attempt=1) {
+async function callAPI(systemPrompt, userPrompt, maxTokens=1000, attempt=1) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 60000); // 28s timeout
   try {
