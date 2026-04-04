@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8">  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://*.supabase.co https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pulse · Business Intelligence</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -678,7 +678,7 @@ function switchAuthTab(tab) {
   });
 }
 
-function doSignup() {
+function doSignup() {  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;  const _name=(document.getElementById('su-name')||{}).value||'';  const _email=(document.getElementById('su-email')||{}).value||'';  const _pass=(document.getElementById('su-pass')||{}).value||'';  if(_name.trim().length<2){toast('Name must be at least 2 characters','warn');return;}  if(!_emailRe.test(_email.trim())){toast('Please enter a valid email address','warn');return;}  if(_pass.length<8){toast('Password must be at least 8 characters','warn');return;}  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;  const _name=(document.getElementById('su-name')||{}).value||'';  const _email=(document.getElementById('su-email')||{}).value||'';  const _pass=(document.getElementById('su-pass')||{}).value||'';  if(_name.trim().length<2){toast('Name must be at least 2 characters','warn');return;}  if(!_emailRe.test(_email.trim())){toast('Please enter a valid email address','warn');return;}  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;  const _name=(document.getElementById('su-name')||{}).value||'';  const _email=(document.getElementById('su-email')||{}).value||'';  const _pass=(document.getElementById('su-pass')||{}).value||'';  if(_name.trim().length<2){toast('Name must be at least 2 characters','warn');return;}  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;  const _name=(document.getElementById('su-name')||{}).value||'';  const _email=(document.getElementById('su-email')||{}).value||'';  const _pass=(document.getElementById('su-pass')||{}).value||'';  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;  const _name=(document.getElementById('su-name')||{}).value||'';  const _email=(document.getElementById('su-email')||{}).value||'';  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;  const _name=(document.getElementById('su-name')||{}).value||'';  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const name=document.getElementById('su-name').value.trim();
   const email=document.getElementById('su-email').value.trim().toLowerCase();
   const pass=document.getElementById('su-pass').value;
@@ -805,7 +805,7 @@ document.addEventListener('click', e => {
 });
 
 // ══════════════════════════════════════
-//  SHARED API HELPER  (timeout + retry)
+// ── SECURITY HELPERS ──────────────────────────────────────────────────
 // ══════════════════════════════════════
 async function callAPI(systemPrompt, userPrompt, maxTokens=1000, attempt=1) {
   const controller = new AbortController();
@@ -1003,7 +1003,7 @@ async function fetchAll() {
   setTimeout(fetchUpcoming, 4500);
 }
 
-function doRefreshAll() { fetchAll(); }
+function doRefreshAll() { const now=Date.now(); if(window._lastRefresh&&now-window._lastRefresh<30000){toast('Please wait 30s between refreshes','warn');return;} window._lastRefresh=now; fetchAll(); }
 
 // ══════════════════════════════════════
 //  NORMALIZE HELPERS
@@ -1113,7 +1113,7 @@ function exportSection(section) {
       ${n.whyItMatters?`<div style="background:#F5F3EF;padding:8px 11px;border-radius:6px;font-size:12px;color:#374151;"><strong>Why it matters:</strong> ${n.whyItMatters}</div>`:''}
       ${n.url&&n.url.startsWith('http')?`<div style="margin-top:8px;"><a href="${n.url}" style="font-size:12px;color:#1A56DB;font-weight:700;">Read full story →</a></div>`:''}
     </div>`).join('');
-  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pulse — ${title}</title><style>body{font-family:system-ui,sans-serif;max-width:700px;margin:40px auto;padding:0 24px;background:#F5F3EF;color:#111827;}</style></head><body><h1 style="font-size:24px;font-weight:700;margin-bottom:4px;">🔵 Pulse — ${title}</h1><p style="color:#9CA3AF;font-size:13px;margin-bottom:28px;">${biz} · ${date}</p>${rows}</body></html>`;
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://*.supabase.co https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co;"><title>Pulse — ${title}</title><style>body{font-family:system-ui,sans-serif;max-width:700px;margin:40px auto;padding:0 24px;background:#F5F3EF;color:#111827;}</style></head><body><h1 style="font-size:24px;font-weight:700;margin-bottom:4px;">🔵 Pulse — ${title}</h1><p style="color:#9CA3AF;font-size:13px;margin-bottom:28px;">${biz} · ${date}</p>${rows}</body></html>`;
   const blob=new Blob([html],{type:'text/html'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
@@ -1146,7 +1146,7 @@ function buildCard(item, idx, opts={}) {
           </div>
         </div>
       </div>
-      <div class="ncard-title">${item.title||''}</div>
+      <div class="ncard-title">${escapeHtml(item.title||'')}</div>
       <div class="ncard-summary">${item.summary||''}</div>
       ${item.whyItMatters?`<div class="ncard-why"><span class="ncard-why-icon">💡</span><span><strong>Why it matters:</strong> ${item.whyItMatters}</span></div>`:''}
       ${extraBadge}
