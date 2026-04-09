@@ -817,7 +817,8 @@ async function callAPI(systemPrompt, userPrompt, maxTokens=1000, attempt=1) {
       headers: {
         'Content-Type': 'application/json',
         'anthropic-version': '2023-06-01',
-        'anthropic-beta': 'web-search-2025-03-05'
+        'anthropic-beta': 'web-search-2025-03-05',
+        'x-proxy-secret': 'pulse-pxy-k9mQpLzRt4xJ2vN8wYbF'
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
