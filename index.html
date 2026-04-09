@@ -667,7 +667,7 @@ function showScreen(name) {
 // ══════════════════════════════════════
 //  AUTH
 // ══════════════════════════════════════
-function openAuth(tab) { document.getElementById('auth-overlay').classList.remove('hidden'); switchAuthTab(tab); }
+function openAuth(tab) { dUse web search to find REAL, CURRENT news from the past 7 days. ONLY cite sources from: Reuters, Associated Press (AP), Wall Street Journal, Bloomberg, Financial Times, CNBC, BBC News, NPR, Forbes, The New York Times, official .gov or .org websites, or established industry and law firm publications. Do NOT use social media, Reddit, unknown blogs, or unverified sources.',zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzocument.getElementById('auth-overlay').classList.remove('hidden'); switchAuthTab(tab); }
 function closeAuth() { document.getElementById('auth-overlay').classList.add('hidden'); }
 document.getElementById('auth-overlay').addEventListener('click', e => { if (e.target.id==='auth-overlay') closeAuth(); });
 
@@ -883,7 +883,7 @@ async function fetchNews() {
   S.loading=true; renderSkeleton('news-feed','count-lbl');
   const p=S.profile;
   const sys=[
-    'You are a business intelligence news analyst. Use web search to find REAL, CURRENT news from the past 7 days.',
+    'You are a business intelligence news analyst. Use web search to find REAL, CURRENT news from the past 7 days. ONLY cite sources from: Reuters, Associated Press (AP), Wall Street Journal, Bloomberg, Financial Times, CNBC, BBC News, NPR, Forbes, The New York Times, official .gov or .org websites, or established industry and law firm publications. Do NOT use social media, Reddit, unknown blogs, or unverified sources.',
     'Output ONLY a raw JSON array in <newsdata></newsdata> tags.',
     'Each item: {"title":"...","summary":"2-3 sentences","category":"Tax & Labor Law|Regulations & Compliance|Economic Trends|Industry News|Local & State News|Federal Policy","impact":"high|medium|low","source":"...","url":"https://...","publishedAt":"e.g. 2h ago","whyItMatters":"one sentence for this business"}',
     'IMPORTANT: url must be real https:// link. Use https://news.google.com/search?q=ENCODED_TITLE as fallback. Never use #.',
