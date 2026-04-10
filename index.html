@@ -805,7 +805,13 @@ document.addEventListener('click', e => {
 });
 
 // ══════════════════════════════════════
-// ── SECURITY HELPERS ──────────────────────────────────────────────────
+// ── CACHE + SANITIZE HELPERS
+  const CACHE_TTL=60*60*1000;
+  function getCached(k){try{const d=JSON.parse(localStorage.getItem('pulse_c_'+k));if(d&&Date.now()-d.ts<CACHE_TTL)return d.val;}catch(e){}return null;}
+  function setCache(k,v){try{localStorage.setItem('pulse_c_'+k,JSON.stringify({ts:Date.now(),val:v}));}catch(e){}}
+  function sanitizeInput(s,max=500){return String(s||'').replace(/<[^>]*>/g,'').replace(/[<>"'`]/g,'').trim().slice(0,max);}
+
+  // ── SECURITY HELPERS ──────────────────────────────────────────────────
 // ══════════════════════════════════════
 async function callAPI(systemPrompt, userPrompt, maxTokens=1000, attempt=1) {
   const controller = new AbortController();
@@ -834,7 +840,8 @@ async function callAPI(systemPrompt, userPrompt, maxTokens=1000, attempt=1) {
       if (attempt < 2) {
         console.warn('[Pulse] API '+res.status+', retrying in 3s...');
         await new Promise(r => setTimeout(r, 3000));
-        return callAPI(systemPrompt, userPrompt, maxTokens, attempt+1);
+                await new Promise(r=>setTimeout(r,1000+Math.random()*1000));
+return callAPI(systemPrompt, userPrompt, maxTokens, attempt+1);
       }
       throw new Error('HTTP '+res.status+' after retry: '+e.slice(0,200));
     }
