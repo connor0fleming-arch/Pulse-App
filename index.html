@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://*.supabase.co https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co;">
+<meta charset="UTF-8">
+  <script>if(window.top!==window.self)window.top.location=window.self.location;</script>  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://*.supabase.co https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
 <title>Pulse · Business Intelligence</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -678,7 +679,7 @@ function switchAuthTab(tab) {
   });
 }
 
-function doSignup() {  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;  const _name=(document.getElementById('su-name')||{}).value||'';  const _email=(document.getElementById('su-email')||{}).value||'';  const _pass=(document.getElementById('su-pass')||{}).value||'';  if(_name.trim().length<2){toast('Name must be at least 2 characters','warn');return;}  if(!_emailRe.test(_email.trim())){toast('Please enter a valid email address','warn');return;}  if(_pass.length<8){toast('Password must be at least 8 characters','warn');return;}  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;  const _name=(document.getElementById('su-name')||{}).value||'';  const _email=(document.getElementById('su-email')||{}).value||'';  const _pass=(document.getElementById('su-pass')||{}).value||'';  if(_name.trim().length<2){toast('Name must be at least 2 characters','warn');return;}  if(!_emailRe.test(_email.trim())){toast('Please enter a valid email address','warn');return;}  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;  const _name=(document.getElementById('su-name')||{}).value||'';  const _email=(document.getElementById('su-email')||{}).value||'';  const _pass=(document.getElementById('su-pass')||{}).value||'';  if(_name.trim().length<2){toast('Name must be at least 2 characters','warn');return;}  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;  const _name=(document.getElementById('su-name')||{}).value||'';  const _email=(document.getElementById('su-email')||{}).value||'';  const _pass=(document.getElementById('su-pass')||{}).value||'';  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;  const _name=(document.getElementById('su-name')||{}).value||'';  const _email=(document.getElementById('su-email')||{}).value||'';  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;  const _name=(document.getElementById('su-name')||{}).value||'';  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+async function doSignup() {  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;  const _name=(document.getElementById('su-name')||{}).value||'';  const _email=(document.getElementById('su-email')||{}).value||'';  const _pass=(document.getElementById('su-pass')||{}).value||'';  if(_name.trim().length<2){toast('Name must be at least 2 characters','warn');return;}  if(!_emailRe.test(_email.trim())){toast('Please enter a valid email address','warn');return;}  if(_pass.length<8){toast('Password must be at least 8 characters','warn');return;}  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;  const _name=(document.getElementById('su-name')||{}).value||'';  const _email=(document.getElementById('su-email')||{}).value||'';  const _pass=(document.getElementById('su-pass')||{}).value||'';  if(_name.trim().length<2){toast('Name must be at least 2 characters','warn');return;}  if(!_emailRe.test(_email.trim())){toast('Please enter a valid email address','warn');return;}  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;  const _name=(document.getElementById('su-name')||{}).value||'';  const _email=(document.getElementById('su-email')||{}).value||'';  const _pass=(document.getElementById('su-pass')||{}).value||'';  if(_name.trim().length<2){toast('Name must be at least 2 characters','warn');return;}  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;  const _name=(document.getElementById('su-name')||{}).value||'';  const _email=(document.getElementById('su-email')||{}).value||'';  const _pass=(document.getElementById('su-pass')||{}).value||'';  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;  const _name=(document.getElementById('su-name')||{}).value||'';  const _email=(document.getElementById('su-email')||{}).value||'';  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;  const _name=(document.getElementById('su-name')||{}).value||'';  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const name=document.getElementById('su-name').value.trim();
   const email=document.getElementById('su-email').value.trim().toLowerCase();
   const pass=document.getElementById('su-pass').value;
@@ -687,7 +688,7 @@ function doSignup() {  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;  const _name
   if (pass.length<6) { toast('Password must be 6+ characters.','err'); return; }
   const users=JSON.parse(localStorage.getItem('pulse_users')||'{}');
   if (users[email]) { toast('An account with this email already exists.','err'); return; }
-  users[email]={name,email,pass};
+  users[email]={name,email,pass:await hashPassword(pass)};
   localStorage.setItem('pulse_users',JSON.stringify(users));
   S.user={name,email}; S.profile=null; S.news=[]; S.legal=[]; S.products=[]; S.upcoming=[];
   persist(); closeAuth(); showScreen('onboarding');
@@ -695,13 +696,13 @@ function doSignup() {  const _emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;  const _name
   toast(`Welcome, ${name.split(' ')[0]}!`,'ok');
 }
 
-function doLogin() {
+async function doLogin() {
   const email=document.getElementById('li-email').value.trim().toLowerCase();
   const pass=document.getElementById('li-pass').value;
   if (!email||!pass) { toast('Please enter your credentials.','err'); return; }
   const users=JSON.parse(localStorage.getItem('pulse_users')||'{}');
   const u=users[email];
-  if (!u||u.pass!==pass) { toast('Invalid email or password.','err'); return; }
+  if (!u||u.pass!==await hashPassword(pass)) { toast('Invalid email or password.','err'); return; }
   S.user={name:u.name,email:u.email};
   S.profile   = JSON.parse(localStorage.getItem(`pulse_profile_${email}`)||'null');
   S.news      = JSON.parse(localStorage.getItem(sk('news'))||'[]');
@@ -811,7 +812,20 @@ document.addEventListener('click', e => {
   function setCache(k,v){try{localStorage.setItem('pulse_c_'+k,JSON.stringify({ts:Date.now(),val:v}));}catch(e){}}
   function sanitizeInput(s,max=500){return String(s||'').replace(/<[^>]*>/g,'').replace(/[<>"'`]/g,'').trim().slice(0,max);}
 
-  // ── SECURITY HELPERS ──────────────────────────────────────────────────
+  
+// ── SECURITY: SHA-256 password hashing
+async function hashPassword(plain) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(plain));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+// ── SECURITY: Safe innerHTML — strips scripts/event handlers from AI content
+function safeHTML(el, html) {
+  if (typeof html !== 'string') { el.textContent = ''; return; }
+  el.innerHTML = html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '');
+}
+// ── SECURITY HELPERS ──────────────────────────────────────────────────
 // ══════════════════════════════════════
 async function callAPI(systemPrompt, userPrompt, maxTokens=1000, attempt=1) {
   const controller = new AbortController();
